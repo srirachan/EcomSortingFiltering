@@ -8,18 +8,10 @@ const ProductsHeader = props => {
     changeSortby(event.target.value)
   }
 
-  const {sortbyOptions, activeOptionId, onChangeInputSearch} = props
-
-  const onChangeInput = event => {
-    if (event.key === 'Enter') {
-      onChangeInputSearch(event.target.value)
-    }
-  }
+  const {sortbyOptions, activeOptionId} = props
 
   return (
     <div className="products-header">
-      <input type="search" placeholder="search" onKeyDown={onChangeInput} />
-
       <h1 className="products-list-heading">All Products</h1>
       <div className="sort-by-container">
         <BsFilterRight className="sort-by-icon" />

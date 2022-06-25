@@ -68,7 +68,7 @@ const ratingsList = [
 class AllProductsSection extends Component {
   state = {
     productsList: [],
-    isLoading: '',
+    isLoading: 'initial',
     activeOptionId: sortbyOptions[0].optionId,
     titleSearch: '',
     category: '',
@@ -81,7 +81,7 @@ class AllProductsSection extends Component {
 
   getProducts = async () => {
     this.setState({
-      isLoading: true,
+      isLoading: 'loading',
     })
     const jwtToken = Cookies.get('jwt_token')
 
@@ -110,10 +110,10 @@ class AllProductsSection extends Component {
       }))
       this.setState({
         productsList: updatedData,
-        isLoading: true,
+        isLoading: 'success',
       })
     } else {
-      this.setState({isLoading: false})
+      this.setState({isLoading: 'failure'})
     }
   }
 
@@ -122,7 +122,6 @@ class AllProductsSection extends Component {
   }
 
   onChangeInputSearch = value => {
-    console.log(value)
     this.setState({titleSearch: value}, this.getProducts)
   }
 
@@ -136,22 +135,24 @@ class AllProductsSection extends Component {
 
   onClearFilter = () => {
     console.log('hello')
-    this.setState({category: '', rating: '', titleSearch: ''}, this.getProducts)
+    this.setState(
+      {
+        titleSearch: '',
+        category: '',
+        rating: '',
+        activeOptionId: sortbyOptions[0].optionId,
+      },
+      this.getProducts,
+    )
   }
 
   renderProductsList = () => {
     const {productsList, activeOptionId} = this.state
 
     // TODO: Add No Products View
-    return (
-      <div className="all-products-container">
-        <ProductsHeader
-          activeOptionId={activeOptionId}
-          sortbyOptions={sortbyOptions}
-          changeSortby={this.changeSortby}
-          onChangeInputSearch={this.onChangeInputSearch}
-        />
-        <div className="sub-container">
+    if (productsList.length === 0) {
+      return (
+        <div className="dum-container">
           <div className="filtered-container">
             <FiltersGroup
               onChangeRatingId={this.onChangeRatingId}
@@ -159,13 +160,47 @@ class AllProductsSection extends Component {
               ratingsList={ratingsList}
               categoryOptions={categoryOptions}
               onClearFilter={this.onClearFilter}
+              onChangeInputSearch={this.onChangeInputSearch}
             />
           </div>
-          <ul className="products-list">
-            {productsList.map(product => (
-              <ProductCard productData={product} key={product.id} />
-            ))}
-          </ul>
+          <div>
+            <img
+              src="https://assets.ccbp.in/frontend/react-js/nxt-trendz/nxt-trendz-no-products-view.png"
+              alt="no products"
+              className="error-image"
+            />
+            <h1>No Products Found</h1>
+            <p>We couldnot any products Try other filters</p>
+          </div>
+        </div>
+      )
+    }
+    return (
+      <div className="dum-container">
+        <div className="filtered-container">
+          <FiltersGroup
+            onChangeRatingId={this.onChangeRatingId}
+            onChangeCategoryId={this.onChangeCategoryId}
+            ratingsList={ratingsList}
+            categoryOptions={categoryOptions}
+            onClearFilter={this.onClearFilter}
+            onChangeInputSearch={this.onChangeInputSearch}
+          />
+        </div>
+
+        <div className="all-products-container">
+          <ProductsHeader
+            activeOptionId={activeOptionId}
+            sortbyOptions={sortbyOptions}
+            changeSortby={this.changeSortby}
+          />
+          <div className="sub-container">
+            <ul className="products-list">
+              {productsList.map(product => (
+                <ProductCard productData={product} key={product.id} />
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     )
@@ -180,30 +215,27 @@ class AllProductsSection extends Component {
   // TODO: Add failure view
 
   render() {
-    const {isLoading, productsList} = this.state
-    if (productsList.length > 0) {
-      switch (isLoading) {
-        case true:
-          return this.renderProductsList()
+    const {isLoading} = this.state
 
-        case false:
-          return (
-            <img
-              src="https://assets.ccbp.in/frontend/react-js/nxt-trendz/nxt-trendz-products-error-view.png"
-              alt="products-failure"
-            />
-          )
+    switch (isLoading) {
+      case 'success':
+        return this.renderProductsList()
 
-        default:
-          return this.renderLoader()
-      }
+      case 'failure':
+        return (
+          <img
+            src="https://assets.ccbp.in/frontend/react-js/nxt-trendz/nxt-trendz-products-error-view.png"
+            alt="products failure"
+            className="error-image"
+          />
+        )
+
+      case 'loading':
+        return this.renderLoader()
+
+      default:
+        return null
     }
-    return (
-      <img
-        src="https://assets.ccbp.in/frontend/react-js/nxt-trendz/nxt-trendz-no-products-view.png"
-        alt="no products"
-      />
-    )
   }
 }
 

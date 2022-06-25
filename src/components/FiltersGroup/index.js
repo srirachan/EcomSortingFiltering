@@ -7,6 +7,7 @@ const FiltersGroup = props => {
     ratingsList,
     categoryOptions,
     onClearFilter,
+    onChangeInputSearch,
   } = props
 
   const renderCategoryList = eachCategory => {
@@ -26,8 +27,7 @@ const FiltersGroup = props => {
 
   const renderRatingList = ratingItem => {
     const {imageUrl, ratingId} = ratingItem
-    const altName = `rating${ratingId}`
-    console.log(altName)
+    const altName = `rating ${ratingId}`
 
     const ratingClicked = () => {
       onChangeRatingId(ratingId)
@@ -45,8 +45,14 @@ const FiltersGroup = props => {
     onClearFilter()
   }
 
+  const onChangeInput = event => {
+    if (event.key === 'Enter') {
+      onChangeInputSearch(event.target.value)
+    }
+  }
   return (
     <div>
+      <input type="search" placeholder="search" onKeyDown={onChangeInput} />
       <h3>Category</h3>
       <ul type="none">
         {categoryOptions.map(eachCategory => renderCategoryList(eachCategory))}
