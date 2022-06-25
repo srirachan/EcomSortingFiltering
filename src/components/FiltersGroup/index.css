@@ -12,3 +12,8 @@
 }
 
 /* Write your CSS here */
+
+.rating-image {
+  width: 85px;
+  height: 25px;
+}

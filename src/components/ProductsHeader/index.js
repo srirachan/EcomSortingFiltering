@@ -11,9 +11,6 @@ const ProductsHeader = props => {
   const {sortbyOptions, activeOptionId, onChangeInputSearch} = props
 
   const onChangeInput = event => {
-    console.log(event.key)
-    console.log(event.target.value)
-
     if (event.key === 'Enter') {
       onChangeInputSearch(event.target.value)
     }
@@ -21,7 +18,7 @@ const ProductsHeader = props => {
 
   return (
     <div className="products-header">
-      <input type="text" placeholder="search" onKeyDown={onChangeInput} />
+      <input type="search" placeholder="search" onKeyDown={onChangeInput} />
 
       <h1 className="products-list-heading">All Products</h1>
       <div className="sort-by-container">

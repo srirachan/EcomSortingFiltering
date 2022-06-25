@@ -68,10 +68,10 @@ const ratingsList = [
 class AllProductsSection extends Component {
   state = {
     productsList: [],
-    isLoading: false,
+    isLoading: '',
     activeOptionId: sortbyOptions[0].optionId,
     titleSearch: '',
-    cateogory: '',
+    category: '',
     rating: '',
   }
 
@@ -87,8 +87,9 @@ class AllProductsSection extends Component {
 
     // TODO: Update the code to get products with filters applied
 
-    const {activeOptionId, titleSearch, cateogory, rating} = this.state
-    const apiUrl = `https://apis.ccbp.in/products?sort_by=${activeOptionId}&cateogory=${cateogory}&title_search=${titleSearch}&rating=${rating}`
+    const {activeOptionId, titleSearch, category, rating} = this.state
+    const apiUrl = `https://apis.ccbp.in/products?sort_by=${activeOptionId}&category=${category}&title_search=${titleSearch}&rating=${rating}`
+    console.log(apiUrl)
     const options = {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
@@ -98,6 +99,7 @@ class AllProductsSection extends Component {
     const response = await fetch(apiUrl, options)
     if (response.ok) {
       const fetchedData = await response.json()
+
       const updatedData = fetchedData.products.map(product => ({
         title: product.title,
         brand: product.brand,
@@ -108,8 +110,10 @@ class AllProductsSection extends Component {
       }))
       this.setState({
         productsList: updatedData,
-        isLoading: false,
+        isLoading: true,
       })
+    } else {
+      this.setState({isLoading: false})
     }
   }
 
@@ -120,6 +124,19 @@ class AllProductsSection extends Component {
   onChangeInputSearch = value => {
     console.log(value)
     this.setState({titleSearch: value}, this.getProducts)
+  }
+
+  onChangeRatingId = ratingId => {
+    this.setState({rating: ratingId}, this.getProducts)
+  }
+
+  onChangeCategoryId = categoryId => {
+    this.setState({category: categoryId}, this.getProducts)
+  }
+
+  onClearFilter = () => {
+    console.log('hello')
+    this.setState({category: '', rating: '', titleSearch: ''}, this.getProducts)
   }
 
   renderProductsList = () => {
@@ -137,8 +154,11 @@ class AllProductsSection extends Component {
         <div className="sub-container">
           <div className="filtered-container">
             <FiltersGroup
-              categoryOptions={categoryOptions}
+              onChangeRatingId={this.onChangeRatingId}
+              onChangeCategoryId={this.onChangeCategoryId}
               ratingsList={ratingsList}
+              categoryOptions={categoryOptions}
+              onClearFilter={this.onClearFilter}
             />
           </div>
           <ul className="products-list">
@@ -160,14 +180,29 @@ class AllProductsSection extends Component {
   // TODO: Add failure view
 
   render() {
-    const {isLoading} = this.state
+    const {isLoading, productsList} = this.state
+    if (productsList.length > 0) {
+      switch (isLoading) {
+        case true:
+          return this.renderProductsList()
 
+        case false:
+          return (
+            <img
+              src="https://assets.ccbp.in/frontend/react-js/nxt-trendz/nxt-trendz-products-error-view.png"
+              alt="products-failure"
+            />
+          )
+
+        default:
+          return this.renderLoader()
+      }
+    }
     return (
-      <div className="all-products-section">
-        {/* TODO: Update the below element */}
-
-        {isLoading ? this.renderLoader() : this.renderProductsList()}
-      </div>
+      <img
+        src="https://assets.ccbp.in/frontend/react-js/nxt-trendz/nxt-trendz-no-products-view.png"
+        alt="no products"
+      />
     )
   }
 }
